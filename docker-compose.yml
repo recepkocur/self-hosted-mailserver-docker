@@ -1,0 +1,80 @@
+services:
+  mailserver:
+    image: ghcr.io/docker-mailserver/docker-mailserver:latest
+    container_name: mailserver
+    # Provide the FQDN of your mail server here (Your DNS MX record should point to this value)
+    hostname: mail.kocur.app
+    env_file: .env
+    ports:
+      - "25:25" # SMTP  (explicit TLS => STARTTLS, Authentication is DISABLED => use port 465/587 instead)
+      - "143:143" # IMAP4 (explicit TLS => STARTTLS)
+      - "465:465" # ESMTP (implicit TLS)
+      - "587:587" # ESMTP (explicit TLS => STARTTLS)
+      - "993:993" # IMAP4 (implicit TLS)
+    volumes:
+      - ./volumes/mail-data/:/var/mail/
+      - ./volumes/mail-state/:/var/mail-state/
+      - ./volumes/mail-logs/:/var/log/mail/
+      - ./volumes/config/:/tmp/docker-mailserver/
+      - ./volumes/certbot/certs/:/etc/letsencrypt/:ro
+      - /etc/localtime:/etc/localtime:ro
+    restart: always
+    stop_grace_period: 1m
+    # Uncomment if using `ENABLE_FAIL2BAN=1`:
+    cap_add:
+      - NET_ADMIN
+    networks:
+      - proxy
+    healthcheck:
+      test: "ss --listening --tcp | grep -P 'LISTEN.+:smtp' || exit 1"
+      timeout: 3s
+      retries: 0
+    # command: >
+    #   sh -c "
+    #     cp /tmp/docker-mailserver/postfix/main.cf /etc/postfix/main.cf &&
+    #     chown root:root /etc/postfix/main.cf &&
+    #     chmod 644 /etc/postfix/main.cf &&
+    #     supervisord -c /etc/supervisor/supervisord.conf
+    #   "
+
+    # ilk docker compose çalıştırın sonra
+    # sonra tekrar çalıştırmak için aşağıdaki komutu kullanın
+    # command:
+    #   - sh -c "echo 'myhostname = srv609273.hstgr.cloud' >> /etc/postfix/main.cf"
+    #   - sh -c "postfix start-fg"
+
+  renew-cert:
+    image: certbot/dns-cloudflare
+    container_name: renew-cert
+    volumes:
+      - ./volumes/certbot/certs/:/etc/letsencrypt/
+      - ./volumes/certbot/logs/:/var/log/letsencrypt/
+      - ./volumes/certbot/secrets/:/root/.secrets/
+    command: >
+      certonly --dns-cloudflare
+      --dns-cloudflare-credentials /root/.secrets/cloudflare.ini
+      --non-interactive --agree-tos
+      --email recepkocur@gmail.com
+      --keep-until-expiring
+      -d mail.kocur.app
+
+  email-sender:
+    container_name: email-sender
+    build: ./email-sender
+    volumes:
+      - ./email-sender:/app
+    restart: "no"
+    tty: true
+    stdin_open: true
+    networks:
+      - proxy
+
+secrets:
+  cloudflare-api-token:
+    file: ./volumes/certbot/secrets/cloudflare.ini
+
+networks:
+  proxy:
+    driver: bridge
+    external: true
+    name: proxy
