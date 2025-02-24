@@ -1,15 +1,15 @@
 services:
   mailserver:
     image: ghcr.io/docker-mailserver/docker-mailserver:latest
-    container_name: mailserver
+    container_name: app-mailserver
     # Provide the FQDN of your mail server here (Your DNS MX record should point to this value)
     hostname: mail.kocur.app
     env_file: .env
     ports:
-      - "25:25" # SMTP  (explicit TLS => STARTTLS, Authentication is DISABLED => use port 465/587 instead)
-      - "143:143" # IMAP4 (explicit TLS => STARTTLS)
+      # - "25:25" # SMTP  (explicit TLS => STARTTLS, Authentication is DISABLED => use port 465/587 instead)
+      # - "143:143" # IMAP4 (explicit TLS => STARTTLS)
       - "465:465" # ESMTP (implicit TLS)
-      - "587:587" # ESMTP (explicit TLS => STARTTLS)
+      # - "587:587" # ESMTP (explicit TLS => STARTTLS)
       - "993:993" # IMAP4 (implicit TLS)
     volumes:
       - ./volumes/mail-data/:/var/mail/
@@ -59,7 +59,7 @@ services:
       -d mail.kocur.app
 
   email-sender:
-    container_name: email-sender
+    container_name: job-email-sender
     build: ./email-sender
     volumes:
       - ./email-sender:/app

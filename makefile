@@ -36,6 +36,7 @@ log:
 # Container Durumu
 ps:
 	docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" -a
+	watch -n 2 'docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Size}}\t{{.Ports}}" | grep mailserver'
 
 # Düzeltme
 fix:
