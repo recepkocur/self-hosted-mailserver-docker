@@ -52,3 +52,9 @@ postfix-config:
 	docker cp volumes/postfix/main.cf mailserver:/etc/postfix/main.cf
 	docker exec mailserver chown root:root /etc/postfix/main.cf
 	docker exec mailserver chmod 644 /etc/postfix/main.cf
+
+# GitHub'a Push
+push:
+	git add .
+	git commit -m "Update: $$(date '+%Y.%m.%d %H:%M:%S')"
+	git push

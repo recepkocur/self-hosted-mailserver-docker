@@ -14,13 +14,13 @@ jobs:
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/github-actions
-          chmod 600 ~/.ssh/github-actions
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/vps-kocur-app
+          chmod 600 ~/.ssh/vps-kocur-app
           ssh-keyscan -p ${{ secrets.SSH_PORT }} -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
       - name: Deploy to Self-Hosted VPS
         run: |
-          ssh -i ~/.ssh/github-actions -p ${{ secrets.SSH_PORT }} -v ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} << 'EOF'
+          ssh -i ~/.ssh/vps-kocur-app -p ${{ secrets.SSH_PORT }} -v ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} << 'EOF'
             cd ${{ secrets.SSH_PATH }}
             git pull origin master
             docker compose -f docker-compose.yml down
