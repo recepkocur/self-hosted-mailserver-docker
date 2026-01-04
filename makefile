@@ -46,6 +46,14 @@ fix:
 sendmail:
 	docker-compose run --rm email-sender
 
+# E-posta Gönder - kocur modu
+sendmail-kocur:
+	docker-compose run --rm email-sender python send_email.py --mode kocur
+
+# E-posta Gönder - smd modu
+sendmail-smd:
+	docker-compose run --rm email-sender python send_email.py --mode smd
+
 # sudo docker cp mailserver:/etc/postfix/main.cf ./volumes/postfix/main.cf
 # Postfix yapılandırmasını güncelle sonra make restart yapın
 postfix-config:
