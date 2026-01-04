@@ -40,7 +40,7 @@ ps:
 # Düzeltme
 fix:
 	chmod 600 volumes/certbot/cloudflare.ini
-	docker network create --driver bridge proxy
+	docker network create --driver bridge proxy || true
 
 # E-posta Gönder
 sendmail:

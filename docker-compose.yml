@@ -57,6 +57,7 @@ services:
       --email recepkocur@gmail.com
       --keep-until-expiring
       -d mail.kocur.app
+      -d mail.smd.org.tr
 
   email-sender:
     container_name: job-email-sender
